@@ -7,13 +7,16 @@ namespace WebServer
         static void Main(string[] args)
         {
             Server server = new();
+            
+            var t = server.StartAsync();
 
             var ips = server.GetServerAddresses();
 
-            foreach (var ip in ips) {
-                Console.WriteLine("Listening on IP " + ip);
+            foreach (var ip in ips)
+            {
+                Console.WriteLine("Listening on: " + ip);
             }
-
+            Console.ReadLine();
         }
     }
 }
