@@ -9,10 +9,11 @@ namespace WebServer.Components.Test
         public void InitializeListener_ShouldAddNetworkIPs()
         {
             // Arrange
-            Server server = new();
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            var expected = host.AddressList.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).Select(ip => "http://" + ip.ToString() + "/").ToList();
-            expected.Add("http://localhost/");
+            Server server = new(6000);
+            var expected = new List<string>
+            {
+                "http://localhost:6000/"
+            };
 
             var actualOutPut = server.GetServerAddresses();
 
@@ -26,7 +27,6 @@ namespace WebServer.Components.Test
             {
                 Assert.Contains(ip, expected);
             }
-
         }
     }
 }
