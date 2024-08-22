@@ -1,5 +1,6 @@
-﻿using System.Net;
-using System.Net.Sockets;
+﻿using System.Diagnostics.Metrics;
+using System.Net;
+using System.Reflection;
 using System.Text;
 
 namespace WebServer.Components
@@ -12,6 +13,7 @@ namespace WebServer.Components
         private HttpListener _listener = new();
         private readonly TextWriter _loggerDestination;
         private Semaphore sem;
+        private Router router = new Router();
 
         public Server(int portNumber = 5000, int maxSimultaneousConnections = 20, HttpListener? listener = null, TextWriter? loggerDestination = null)
         {
@@ -28,6 +30,13 @@ namespace WebServer.Components
         public Task StartAsync()
         {
             _listener.Start();
+
+            var ips = GetServerAddresses();
+            foreach (var ip in ips)
+            {
+                _loggerDestination.WriteLine("Listening on: " + ip);
+            }
+
             return Task.Run(() => RunServer(_listener));
         }
 
@@ -54,12 +63,17 @@ namespace WebServer.Components
 
             // Release the semaphore so that another listener can be immediately started up.
             sem.Release();
-            
+
             LogRequest(context.Request);
+
+            
+
+            // router.Route(verb, path, queryParameters);
 
             SendResponse(context);
         }
 
+       
         private void SendResponse(HttpListenerContext context)
         {
             // this code is a place holder
@@ -68,6 +82,7 @@ namespace WebServer.Components
             context.Response.ContentLength64 = encoded.Length;
             context.Response.OutputStream.Write(encoded, 0, encoded.Length);
             context.Response.OutputStream.Close();
+
         }
 
         public List<string> GetServerAddresses()
@@ -134,5 +149,15 @@ namespace WebServer.Components
         {
             _loggerDestination.WriteLine(info);
         }
+
+        public static string GetWebsitePath()
+        {
+            // Path of our exe.
+            string websitePath = Assembly.GetExecutingAssembly().Location + "\\Website";
+            // websitePath = websitePath.LeftOfRightmostOf("\\").LeftOfRightmostOf("\\").LeftOfRightmostOf("\\") ;
+
+            return websitePath;
+        }
+
     }
 }

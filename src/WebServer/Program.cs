@@ -7,15 +7,9 @@ namespace WebServer
         static void Main(string[] args)
         {
             Server server = new();
+
+            Task t = server.StartAsync();
             
-            var t = server.StartAsync();
-
-            var ips = server.GetServerAddresses();
-
-            foreach (var ip in ips)
-            {
-                Console.WriteLine("Listening on: " + ip);
-            }
             Console.ReadLine();
         }
     }
