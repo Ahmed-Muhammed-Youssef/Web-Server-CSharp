@@ -66,21 +66,19 @@ namespace WebServer.Components
 
             LogRequest(context.Request);
 
-            
+            var route = router.StartRouting(context.Request);
 
-            // router.Route(verb, path, queryParameters);
+            var payLoad = ResponseBuilder.Build(route);
 
-            SendResponse(context);
+            SendResponse(context, payLoad);
         }
 
        
-        private void SendResponse(HttpListenerContext context)
+        private void SendResponse(HttpListenerContext context, Payload payload)
         {
-            // this code is a place holder
-            string response = "Hello Browser!";
-            byte[] encoded = Encoding.UTF8.GetBytes(response);
-            context.Response.ContentLength64 = encoded.Length;
-            context.Response.OutputStream.Write(encoded, 0, encoded.Length);
+            context.Response.ContentLength64 = payload.Data.Length;
+            context.Response.ContentType = payload.ContentType;
+            context.Response.OutputStream.Write(payload.Data, 0, payload.Data.Length);
             context.Response.OutputStream.Close();
 
         }
@@ -115,7 +113,7 @@ namespace WebServer.Components
             if (request.QueryString.Count > 0)
             {
                 sb.AppendLine("Query String Parameters:");
-                foreach (string key in request.QueryString.AllKeys)
+                foreach (string? key in request.QueryString.AllKeys)
                 {
                     sb.AppendLine($"    {key}: {request.QueryString[key]}");
                 }

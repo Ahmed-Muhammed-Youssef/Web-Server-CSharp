@@ -15,6 +15,6 @@
         public const string Svg = "image/svg+xml";
         public const string PlainText = "text/plain";
         public const string Pdf = "application/pdf";
-        public const string Ico = "image/ico";
+        public const string Ico = "image/x-icon";
     }
 }

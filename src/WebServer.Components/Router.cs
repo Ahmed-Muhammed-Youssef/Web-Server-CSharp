@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Reflection;
 using WebServer.Components.Constants;
 
 namespace WebServer.Components
@@ -10,16 +9,17 @@ namespace WebServer.Components
 
         public Router(string? websitePath = null)
         {
-            _websitePath = websitePath ?? AppDomain.CurrentDomain.BaseDirectory;
+            _websitePath = websitePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "website");
         }
 
-        public void StartRouting(HttpListenerRequest request)
+        public RouterResponse StartRouting(HttpListenerRequest request)
         {
             string verb = request.HttpMethod;
                           
             string path = request.RawUrl ?? "";
 
             int beginingOfQueryStrings = path.IndexOf('?');
+
             string queryStrings = beginingOfQueryStrings < 0 ? "" : path[(beginingOfQueryStrings + 1)..];
 
             if (beginingOfQueryStrings > 0 && beginingOfQueryStrings < path.Length)
@@ -28,7 +28,68 @@ namespace WebServer.Components
             }
 
             Dictionary<string, string> queryParameters = ExtractQueryStrings(queryStrings);
+            
+            if (verb == "GET")
+            {
+                return Getter(path, queryParameters);
+            }
+            else if (verb == "POST")
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
+
+        private RouterResponse Getter(string path, Dictionary<string, string> queryParameters)
+        {
+            var response = new RouterResponse();
+            if (path == "/" || path == "/index")
+            {
+                string indexFilePath = Path.Combine(_websitePath, "index.html");
+
+                if (File.Exists(indexFilePath))
+                {
+                    response.StatusCode = 200;
+                    response.Content = indexFilePath;
+                    response.IsFile = true;
+                    response.Headers.Add("Content-Type", ContentType.Html);
+                }
+                else
+                {
+                    response.StatusCode = 404;
+                    response.Content = Path.Combine(_websitePath, "notfound.html");
+                    response.Headers.Add("Content-Type", ContentType.Html);
+                }
+            }
+            else if (path == "/favicon.ico")
+            {
+                string iconPath = Path.Combine(_websitePath, "favicon.ico");
+                if (File.Exists(iconPath))
+                {
+                    response.StatusCode = 200;
+                    response.Content = iconPath;
+                    response.IsFile = true;
+                    response.Headers.Add("Content-Type", ContentType.Ico);
+                }
+                else
+                {
+                    response.StatusCode = 404;
+                    response.Content = Path.Combine(_websitePath, "notfound.html");
+                    response.Headers.Add("Content-Type", ContentType.Html);
+                }
+            }
+            else
+            {
+                response.StatusCode = 404;
+                response.Content = Path.Combine(_websitePath, "notfound.html");
+                response.Headers.Add("Content-Type", ContentType.Html);
+            }
+            return response;
+        }
+
 
         /// <summary>
         /// Returns the query strings as a dictionary

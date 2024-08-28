@@ -11,4 +11,16 @@
     <ProjectReference Include="..\WebServer.Components\WebServer.Components.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="website\favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="website\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="website\notfound.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
